@@ -1,6 +1,7 @@
 const jsonexport = require('jsonexport');
 const { Model } = require('objection');
 const Problem = require('api-problem');
+const _omit = require('lodash');
 
 const { Form } = require('../common/models');
 const Permissions = require('../common/constants').Permissions;
@@ -78,6 +79,29 @@ const service = {
       return await service._getSubmissions(formId, params, currentUser);
     }
     return {};
+  },
+
+  _excludeData: (params = {}, data = []) => {
+    // Delete excluded fields from dataset if there are any
+    if (!params || !params.exclusions) return data;
+    const res = data.map(el => {
+      // params.exclusions.forEach(ex => {
+      //   if (el.SubmissionData && el.SubmissionData.submission) delete el.SubmissionData.submission[ex];
+      // });
+      try {
+        console.log('***************');
+        console.log(el);
+        _omit(el, params.exclusions);
+        console.log('xxxxxxxxxxxxxx');
+        console.log(el);
+      }
+      catch(err) {
+        console.log(err);
+      }
+      return el;
+    });
+    console.log(res);
+    return res;
   },
 
   _formatData: async (exportFormat, exportType, form, data = {}) => {
@@ -158,7 +182,8 @@ const service = {
 
     const form = await service._getForm(formId);
     const data = await service._getData(exportType, formId, params, currentUser);
-    const result = await service._formatData(exportFormat, exportType, form, data);
+    const excluded = await service._excludeData(params, data);
+    const result = await service._formatData(exportFormat, exportType, form, excluded);
 
     return { data: result.data, headers: result.headers };
   }

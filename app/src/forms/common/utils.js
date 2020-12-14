@@ -1,4 +1,11 @@
 const falsey = require('falsey');
+const _ = require('lodash');
+
+const objectUtils = {
+  omitKeys: obj => {
+
+  };
+};
 
 const typeUtils = {
   isInt: x => {
@@ -37,6 +44,7 @@ const queryUtils = {
 
 module.exports = {
   falsey: falsey,
+  objectUtils: objectUtils,
   queryUtils: queryUtils,
   typeUtils:  typeUtils,
 };

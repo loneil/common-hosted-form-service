@@ -213,6 +213,7 @@ export default {
       {
         params: {
           format: format,
+          exclusions: ['submission.branch.Branches'],
           type: 'submissions',
           minDate: minDate ? minDate : undefined,
           maxDate: maxDate ? maxDate : undefined
