@@ -1,5 +1,6 @@
 const config = require('config');
 const routes = require('express').Router();
+var jwt = require('jsonwebtoken');
 
 const currentUser = require('../auth/middleware/userAccess').currentUser;
 const hasFormPermissions = require('../auth/middleware/userAccess').hasFormPermissions;
@@ -38,6 +39,21 @@ routes.delete('/:formId', currentUser, hasFormPermissions([P.FORM_READ, P.FORM_D
 
 routes.get('/:formId/submissions', currentUser, hasFormPermissions([P.FORM_READ, P.SUBMISSION_READ]), async (req, res, next) => {
   await controller.listFormSubmissions(req, res, next);
+});
+
+routes.get('/:formId/submissions/dashboard', currentUser, hasFormPermissions([P.FORM_READ, P.SUBMISSION_READ]), async (req, res, next) => {
+  var METABASE_SITE_URL = 'https://chefs-metabase.apps.silver.devops.gov.bc.ca';
+  var METABASE_SECRET_KEY = 'generated secret';
+
+  var payload = {
+    resource: { question: 9 },
+    params: { formId, dateRange, etc },
+    exp: Math.round(Date.now() / 1000) + (10 * 60) // 10 minute expiration
+  };
+  var token = jwt.sign(payload, METABASE_SECRET_KEY);
+  // construct the URL of the iframe to be displayed
+  const iframeUrl = `${METABASE_SITE_URL}/embed/question/${token}`;
+  // return iframe url here to FE, render iframe client side
 });
 
 routes.get('/:formId/versions', currentUser, hasFormPermissions([P.FORM_READ, P.DESIGN_READ]), async (req, res, next) => {
